@@ -2,8 +2,6 @@
 
 **A one-person law firm, run by four AI "employees" instead of hired staff.**
 
-This is a satirical AI-law project built by [Sue You Law](https://www.instagram.com/) for a hackathon. The pitch isn't "an app that does X" — it's a working company of one, where every department a real law firm would staff separately is instead a named AI role that never clocks out.
-
 ## The departments
 
 | Role | Job | AI does the work of |
