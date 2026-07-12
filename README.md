@@ -2,6 +2,20 @@
 
 **A one-person law firm, run by four AI "employees" instead of hired staff.**
 
+## The problem
+
+Legal content is boring. Everyone knows it. The people posting it know it. The people scrolling past it definitely know it.
+
+But in a legal niche, you can't just make it fun. You have to make it accurate. One wrong fact and you've torched your credibility. So most solo creators pick one: either they post dry, verified content nobody watches, or they post fun stuff and quietly hope nobody checks their sources.
+
+ai.onthePrize refuses the tradeoff.
+
+The claymation video makes it watchable, four clay lawyers acting out the case instead of a talking head reading a headline. The AI pipeline makes it defensible. Every hour, four AI roles work the case: one finds the story, one argues it, one formats it for social, and one fact-checks the whole thing before anything goes live. No human in the loop. No prompt required. Just a timestamped log proving the firm was in session while its only partner slept.
+
+Fun content. Verified facts. Built by one person, running on its own.
+
+That's the thing nobody else has figured out how to do yet.
+
 ## The departments
 
 | Role | Job | AI does the work of |
