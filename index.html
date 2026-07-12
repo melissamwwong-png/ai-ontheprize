@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ai.onthePrize — One-Person Courtroom, Running Live</title>
+<title>ai.onthePrize: One-Person Courtroom, Running Live</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstapi.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&family=Space+Mono&display=swap" rel="stylesheet">
@@ -278,7 +278,7 @@ body.splash-lock{overflow:hidden}
   </header>
 
   <h1>One button.<br><em>The whole courtroom runs.</em></h1>
-  <p class="sub" style="max-width:56ch">ai.onthe<i>Prize</i> is a one-lawyer law firm where the associates are software — and every story that walks in gets a trial before it's allowed to publish. The Bloodhound investigates and builds the case file from real AI-law headlines. The Ghostwriter takes the stand and argues it. The Remixer preps the exhibits for the jury — TikTok, Instagram, LinkedIn. Then the Gavel cross-examines the whole case for accuracy and delivers a verdict, live, on one button. Court's never adjourned: an hourly sweep keeps trying cases and logging real timestamps to a public docket, proof the firm's in session while its only partner sleeps. No headcount, no associates on payroll — just rulings.</p>
+  <p class="sub" style="max-width:56ch">ai.onthe<i>Prize</i> is a one-lawyer law firm where the associates are software, and every story that walks in gets a trial before it's allowed to publish. The Bloodhound investigates and builds the case file from real AI-law headlines. The Ghostwriter takes the stand and argues it. The Remixer preps the exhibits for the jury: TikTok, Instagram, LinkedIn. Then the Gavel cross-examines the whole case for accuracy and delivers a verdict, live, on one button. Court's never adjourned: an hourly sweep keeps trying cases and logging real timestamps to a public docket, proof the firm's in session while its only partner sleeps. No headcount, no associates on payroll, just rulings.</p>
 
   <section class="demo demo-top reveal">
     <div class="demo-kicker">CASE FILE · EXHIBIT A</div>
@@ -287,7 +287,7 @@ body.splash-lock{overflow:hidden}
     <div class="demo-frame">
       <video controls playsinline preload="metadata">
         <source src="/assets/demo.mp4" type="video/mp4">
-        Your browser doesn't support embedded video — <a href="/assets/demo.mp4" style="color:var(--pink)">watch it directly</a>.
+        Your browser doesn't support embedded video. <a href="/assets/demo.mp4" style="color:var(--pink)">Watch it directly</a>.
       </video>
     </div>
     <div class="demo-cap">APPLE V. OPENAI · TRADE SECRETS · CLAYMATION</div>
@@ -330,11 +330,11 @@ body.splash-lock{overflow:hidden}
       </div>
       <span class="pulse-live" id="docketLive">SYNCING</span>
     </div>
-    <p class="sub">Built by one lawyer, run by no one. An hourly sweep hunts AI-law headlines, scores them, and the Gavel rules — logged here whether or not anyone is looking. This is the proof: the firm operates while its founder sleeps.</p>
+    <p class="sub">Built by one lawyer, run by no one. An hourly sweep hunts AI-law headlines, scores them, and the Gavel rules, logged here whether or not anyone is looking. This is the proof: the firm operates while its founder sleeps.</p>
     <div class="docket-meta">
-      <span>LAST SYNCED <b id="lastSync">—</b></span>
-      <span>NEXT SWEEP IN <b id="nextSweep">—</b></span>
-      <span>CASES LOGGED <b id="caseCount">—</b></span>
+      <span>LAST SYNCED <b id="lastSync">–</b></span>
+      <span>NEXT SWEEP IN <b id="nextSweep">–</b></span>
+      <span>CASES LOGGED <b id="caseCount">–</b></span>
     </div>
     <div id="docketBody">
       <div class="dskel"></div><div class="dskel"></div><div class="dskel"></div>
@@ -511,7 +511,7 @@ function renderDocket(table){
   })).filter(r=>r.story);
 
   if(!rows.length){
-    body.innerHTML='<div class="dempty">No sweeps logged yet. Connect the hourly automation and the first ruling lands here within the hour — see <b>the no-code checklist</b>.</div>';
+    body.innerHTML='<div class="dempty">No sweeps logged yet. Connect the hourly automation and the first ruling lands here within the hour: see <b>the no-code checklist</b>.</div>';
     live.textContent='IDLE'; live.style.color='var(--ivory-dim)';
     animateCount(document.getElementById('caseCount'),0);
     return;
@@ -543,7 +543,7 @@ function loadDocket(){
   const s=document.createElement('script');
   s.src='https://docs.google.com/spreadsheets/d/'+DOCKET_SHEET_ID+'/gviz/tq?tqx=out:json&sheet='+encodeURIComponent(DOCKET_TAB)+'&_='+Date.now();
   s.onerror=function(){
-    document.getElementById('docketBody').innerHTML='<div class="dempty">Docket feed unreachable right now — the hourly automation keeps logging regardless.</div>';
+    document.getElementById('docketBody').innerHTML='<div class="dempty">Docket feed unreachable right now. The hourly automation keeps logging regardless.</div>';
     document.getElementById('docketLive').textContent='OFFLINE';
   };
   document.body.appendChild(s);
