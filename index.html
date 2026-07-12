@@ -42,6 +42,8 @@ button:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outlin
 @media (prefers-reduced-motion:reduce){.ticker{overflow:auto}}
 
 header{display:flex;align-items:center;justify-content:space-between;margin-bottom:44px}
+.logo-group{display:flex;align-items:center;gap:10px}
+.logo-mark{width:38px;height:38px;object-fit:contain;flex-shrink:0}
 .logo{font-family:'Instrument Serif',serif;font-size:22px;transition:transform 160ms var(--ease-out)}
 .logo i{font-style:italic;color:var(--pink)}
 @media (hover:hover) and (pointer:fine){
@@ -198,14 +200,67 @@ textarea:focus{border-color:var(--pink)}
 .dempty b{color:var(--ivory)}
 @media (prefers-reduced-motion:reduce){.drow{animation:none;opacity:1;transform:none;filter:none}.dskel{animation:none}}
 
+/* ---- Scroll reveal (purposeful: signals "this section just arrived") ---- */
+.reveal{opacity:0;transform:translateY(16px);filter:blur(4px);transition:opacity 600ms var(--ease-out),transform 600ms var(--ease-out),filter 600ms var(--ease-out)}
+.reveal.in{opacity:1;transform:none;filter:blur(0)}
+.pipeline .reveal:nth-child(1){transition-delay:0ms}
+.pipeline .reveal:nth-child(2){transition-delay:70ms}
+.pipeline .reveal:nth-child(3){transition-delay:140ms}
+.pipeline .reveal:nth-child(4){transition-delay:210ms}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;filter:none;transition:none}}
+
+/* ---- Watch the Demo ---- */
+.demo{margin-top:76px}
+.demo-top{margin-top:0;margin-bottom:36px}
+.demo-kicker{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--ivory-dim)}
+.demo h2{font-family:'Instrument Serif',serif;font-weight:400;font-size:28px;margin-top:4px}
+.demo .sub{margin:8px 0 22px;font-size:14px}
+.demo-frame{max-width:360px;margin:0 auto;border:1px solid var(--line);border-radius:22px;overflow:hidden;
+  background:var(--void-2);box-shadow:0 0 0 1px rgba(244,239,230,.02)}
+.demo-frame video{display:block;width:100%;height:auto}
+.demo-cap{text-align:center;margin-top:14px;font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:.1em;color:var(--ivory-dim)}
+
 footer{margin-top:60px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--ivory-dim);
   display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
 }
+/* ---- Splash / cover screen ---- */
+body.splash-lock{overflow:hidden}
+.splash{
+  position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:32px;background:radial-gradient(circle at 50% 32%,var(--void-2) 0%,var(--void) 68%);
+  transition:opacity 480ms var(--ease-out),visibility 480ms var(--ease-out);
+}
+.splash.hide{opacity:0;visibility:hidden;pointer-events:none}
+.splash-kicker{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.24em;color:var(--ivory-dim);margin-bottom:22px}
+.splash-kicker b{color:var(--pink)}
+.splash-mark{width:84px;height:84px;object-fit:contain;margin-bottom:18px;filter:drop-shadow(0 0 24px rgba(255,46,154,.35))}
+.splash-word{font-family:'Instrument Serif',serif;font-size:clamp(38px,8vw,64px);line-height:1.05}
+.splash-word i{font-style:italic;color:var(--pink)}
+.splash-tag{max-width:420px;margin:18px 0 34px;color:var(--ivory-dim);font-size:15px}
+.splash-tag em{color:var(--ivory);font-style:italic}
+.enter-btn{
+  position:relative;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;
+  background:var(--ivory);color:var(--void);border:0;cursor:pointer;
+  padding:17px 34px;border-radius:999px;box-shadow:0 0 0 0 rgba(255,46,154,.5);
+  animation:ctaPulse 2.6s ease-out infinite;transition:transform 160ms var(--ease-out),background-color 200ms ease;
+}
+.enter-btn:active{transform:scale(0.97)}
+@media (hover:hover) and (pointer:fine){.enter-btn:hover{background:var(--pink);color:var(--ivory);animation:none}}
+.splash-foot{margin-top:28px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.16em;color:var(--ivory-dim);opacity:.6}
+@media (prefers-reduced-motion:reduce){.splash{transition:none}.enter-btn{animation:none}}
 </style>
 </head>
-<body>
+<body class="splash-lock">
+<div class="splash" id="splash">
+  <div class="splash-kicker">OPENARENA &middot; <b>BUIDL_OPC_SG_0712</b> &middot; SINGAPORE, JULY 2026</div>
+  <img src="/assets/logo.png" alt="ai.onthePrize gavel mascot" class="splash-mark">
+  <div class="splash-word">ai.onthe<i>Prize</i></div>
+  <p class="splash-tag">A one-lawyer law firm where the associates are software. <em>One button. The whole courtroom runs.</em></p>
+  <button class="enter-btn" id="enterBtn">STEP INSIDE THE FIRM &rarr;</button>
+  <div class="splash-foot">JUDGES: CLICK THROUGH FOR THE LIVE, RUNNING DASHBOARD</div>
+</div>
 <div class="glow-wrap" id="glowWrap" aria-hidden="true"><div class="glow"></div></div>
 <div class="ticker" aria-hidden="true">
   <div class="ticker-track" id="tickerTrack">
@@ -215,12 +270,28 @@ footer{margin-top:60px;font-family:'Space Mono',monospace;font-size:10px;letter-
 </div>
 <div class="wrap">
   <header>
-    <div class="logo">ai.onthe<i>Prize</i></div>
+    <div class="logo-group">
+      <img src="/assets/logo.png" alt="ai.onthePrize gavel mascot" class="logo-mark">
+      <div class="logo">ai.onthe<i>Prize</i></div>
+    </div>
     <div class="badge">LIVE · CLAUDE API</div>
   </header>
 
   <h1>One button.<br><em>The whole courtroom runs.</em></h1>
-  <p class="sub">No input needed. The Bloodhound hunts this week's real AI law news, the team builds the case, and the Gavel approves or rejects. Live, end to end.</p>
+  <p class="sub" style="max-width:56ch">ai.onthe<i>Prize</i> is a one-lawyer law firm where the associates are software — and every story that walks in gets a trial before it's allowed to publish. The Bloodhound investigates and builds the case file from real AI-law headlines. The Ghostwriter takes the stand and argues it. The Remixer preps the exhibits for the jury — TikTok, Instagram, LinkedIn. Then the Gavel cross-examines the whole case for accuracy and delivers a verdict, live, on one button. Court's never adjourned: an hourly sweep keeps trying cases and logging real timestamps to a public docket, proof the firm's in session while its only partner sleeps. No headcount, no associates on payroll — just rulings.</p>
+
+  <section class="demo demo-top reveal">
+    <div class="demo-kicker">CASE FILE · EXHIBIT A</div>
+    <h2>Watch the Demo</h2>
+    <p class="sub">The Apple v. OpenAI trade-secret case, argued entirely in claymation by the ai.onthePrize studio.</p>
+    <div class="demo-frame">
+      <video controls playsinline preload="metadata">
+        <source src="/assets/demo.mp4" type="video/mp4">
+        Your browser doesn't support embedded video — <a href="/assets/demo.mp4" style="color:var(--pink)">watch it directly</a>.
+      </video>
+    </div>
+    <div class="demo-cap">APPLE V. OPENAI · TRADE SECRETS · CLAYMATION</div>
+  </section>
 
   <div class="actions" style="margin-top:0">
     <button class="run" id="runBtn" onclick="runPipeline(true)">RUN THE CASE</button>
@@ -233,26 +304,26 @@ footer{margin-top:60px;font-family:'Space Mono',monospace;font-size:10px;letter-
   <div class="err" id="err"></div>
 
   <div class="pipeline">
-    <div class="head" id="h-bloodhound" style="--c:var(--gold)">
+    <div class="reveal"><div class="head" id="h-bloodhound" style="--c:var(--gold)">
       <div class="head-top"><div><span class="tag">Research</span><h2>The Bloodhound</h2></div><span class="status" id="s-bloodhound">STANDBY</span></div>
       <div class="out" id="o-bloodhound"></div>
-    </div>
-    <div class="head" id="h-ghostwriter" style="--c:var(--pink)">
+    </div></div>
+    <div class="reveal"><div class="head" id="h-ghostwriter" style="--c:var(--pink)">
       <div class="head-top"><div><span class="tag">Argument</span><h2>The Ghostwriter</h2></div><span class="status" id="s-ghostwriter">STANDBY</span></div>
       <div class="out" id="o-ghostwriter"></div>
-    </div>
-    <div class="head" id="h-remixer" style="--c:var(--green)">
+    </div></div>
+    <div class="reveal"><div class="head" id="h-remixer" style="--c:var(--green)">
       <div class="head-top"><div><span class="tag">Briefs</span><h2>The Remixer</h2></div><span class="status" id="s-remixer">STANDBY</span></div>
       <div class="out" id="o-remixer"></div>
-    </div>
-    <div class="head" id="h-gavel" style="--c:var(--gold)">
+    </div></div>
+    <div class="reveal"><div class="head" id="h-gavel" style="--c:var(--gold)">
       <div class="head-top"><div><span class="tag">Ruling</span><h2>The Gavel</h2></div><span class="status" id="s-gavel">STANDBY</span></div>
       <div class="out" id="o-gavel"></div>
-    </div>
+    </div></div>
   </div>
 
   <section class="docket">
-    <div class="docket-top">
+    <div class="docket-top reveal">
       <div>
         <div class="docket-kicker">SOVEREIGNTY LAYER · NO ONE IS WATCHING THIS</div>
         <h2>The Live Docket</h2>
@@ -276,17 +347,54 @@ footer{margin-top:60px;font-family:'Space Mono',monospace;font-size:10px;letter-
 <script>
 function esc(s){const d=document.createElement('div');d.textContent=s??'';return d.innerHTML}
 
+(function(){
+  const splash=document.getElementById('splash');
+  const enterBtn=document.getElementById('enterBtn');
+  function enter(){
+    splash.classList.add('hide');
+    document.body.classList.remove('splash-lock');
+    setTimeout(()=>{splash.style.display='none';},500);
+  }
+  enterBtn.addEventListener('click',enter);
+  splash.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){enter();}});
+})();
+
+(function(){
+  const els=document.querySelectorAll('.reveal');
+  if(!('IntersectionObserver' in window)||!els.length){els.forEach(el=>el.classList.add('in'));return;}
+  const io=new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){entry.target.classList.add('in');io.unobserve(entry.target);}
+    });
+  },{threshold:0.15,rootMargin:'0px 0px -40px 0px'});
+  els.forEach(el=>io.observe(el));
+})();
+
+function animateCount(el,target){
+  target=Number(target)||0;
+  const start=Number(el.dataset.n)||0;
+  if(start===target){el.textContent=target;return;}
+  el.dataset.n=target;
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent=target;return;}
+  const dur=500,t0=performance.now();
+  function tick(now){
+    const p=Math.min(1,(now-t0)/dur);
+    const eased=1-Math.pow(1-p,3);
+    el.textContent=Math.round(start+(target-start)*eased);
+    if(p<1)requestAnimationFrame(tick);else el.textContent=target;
+  }
+  requestAnimationFrame(tick);
+}
+
 async function ask(prompt,useSearch){
-  const payload={model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:prompt}]};
-  if(useSearch)payload.tools=[{type:"web_search_20250305",name:"web_search"}];
   let r;
   try{
-    r=await fetch("https://api.anthropic.com/v1/messages",{
+    r=await fetch("/api/ask",{
       method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(payload)
+      body:JSON.stringify({prompt,useSearch})
     });
   }catch(networkErr){
-    throw new Error("Network blocked. This demo only runs inside the Claude app preview, not in a normal browser or on a hosted URL.");
+    throw new Error("Network error reaching the backend. Try again in a moment.");
   }
   if(!r.ok){
     const body=await r.text();
@@ -405,11 +513,11 @@ function renderDocket(table){
   if(!rows.length){
     body.innerHTML='<div class="dempty">No sweeps logged yet. Connect the hourly automation and the first ruling lands here within the hour — see <b>the no-code checklist</b>.</div>';
     live.textContent='IDLE'; live.style.color='var(--ivory-dim)';
-    document.getElementById('caseCount').textContent='0';
+    animateCount(document.getElementById('caseCount'),0);
     return;
   }
 
-  document.getElementById('caseCount').textContent=rows.length;
+  animateCount(document.getElementById('caseCount'),rows.length);
   live.textContent='LIVE'; live.style.color='var(--green)';
   body.innerHTML=rows.slice(0,6).map(r=>{
     const ok=(r.verdict||'').toUpperCase()==='APPROVED';
