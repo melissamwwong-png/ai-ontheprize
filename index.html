@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ai.onthePrize — One-Person Courtroom, Running Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstapi.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#0A0A0A;--void-2:#141311;--ivory:#F4EFE6;--ivory-dim:rgba(244,239,230,.55);
+  --pink:#FF2E9A;--gold:#FFC93C;--green:#39FF88;
+  --line:rgba(244,239,230,.1);--glass:rgba(244,239,230,.04);
+  --ease-out:cubic-bezier(0.23,1,0.32,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--void);color:var(--ivory);font-family:'Instrument Sans',sans-serif;font-size:16px;line-height:1.65;min-height:100vh}
+::selection{background:var(--pink);color:var(--void)}
+button:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+.wrap{max-width:860px;margin:0 auto;padding:40px 20px 100px;position:relative;z-index:2}
+.glow-wrap{position:fixed;left:50%;top:-25%;width:min(80vw,560px);height:min(80vw,560px);
+  transform:translate(-50%,var(--parallax,0px));pointer-events:none;z-index:0;transition:transform 80ms linear}
+.glow{width:100%;height:100%;border-radius:50%;filter:blur(70px) hue-rotate(0deg);opacity:.55;
+  background:radial-gradient(circle at 42% 34%,var(--gold) 0%,var(--pink) 45%,var(--green) 78%,transparent 90%);
+  animation:blobDrift 16s ease-in-out infinite,blobHue 12s linear infinite;will-change:transform,filter}
+@keyframes blobDrift{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(3%) scale(1.08)}}
+@keyframes blobHue{0%{filter:blur(70px) hue-rotate(0deg)}100%{filter:blur(70px) hue-rotate(360deg)}}
+
+/* ---- Kinetic ticker strip ---- */
+.ticker{position:relative;z-index:2;overflow:hidden;border-bottom:1px solid var(--line);
+  background:var(--void-2);padding:9px 0;white-space:nowrap}
+.ticker-track{display:inline-flex;animation:tickerScroll 22s linear infinite;will-change:transform}
+.ticker-track span{font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:.18em;
+  padding:0 22px;display:inline-flex;align-items:center;gap:10px;color:var(--ivory-dim)}
+.ticker-track span b{color:var(--pink);font-weight:600}
+.ticker-track span:nth-child(3n+2) b{color:var(--green)}
+.ticker-track span:nth-child(3n+3) b{color:var(--gold)}
+.ticker-track span::after{content:"\2022";color:var(--line);margin-left:10px}
+@keyframes tickerScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.ticker{overflow:auto}}
+
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:44px}
+.logo{font-family:'Instrument Serif',serif;font-size:22px;transition:transform 160ms var(--ease-out)}
+.logo i{font-style:italic;color:var(--pink)}
+@media (hover:hover) and (pointer:fine){
+  .logo:hover{animation:glitch 320ms steps(2,end)}
+}
+@keyframes glitch{
+  0%{transform:translate(0,0);text-shadow:none}
+  20%{transform:translate(-2px,1px);text-shadow:2px 0 var(--pink),-2px 0 var(--green)}
+  40%{transform:translate(2px,-1px);text-shadow:-2px 0 var(--green),2px 0 var(--gold)}
+  60%{transform:translate(-1px,0);text-shadow:2px 0 var(--gold),-2px 0 var(--pink)}
+  80%{transform:translate(1px,1px);text-shadow:-1px 0 var(--pink),1px 0 var(--green)}
+  100%{transform:translate(0,0);text-shadow:none}
+}
+.badge{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--pink);
+  border:1px solid rgba(255,46,154,.4);border-radius:999px;padding:6px 12px;display:flex;align-items:center;gap:8px;
+  transition:border-color 200ms ease,transform 160ms var(--ease-out)}
+@media (hover:hover) and (pointer:fine){.badge:hover{border-color:var(--green);animation:glitch 320ms steps(2,end)}}
+.badge::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--pink);animation:pulse 1.2s ease infinite alternate}
+@keyframes pulse{from{opacity:.4}to{opacity:1}}
+
+h1{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(34px,6.5vw,54px);line-height:1.05;margin-bottom:10px}
+h1 em{font-style:italic;color:var(--pink);animation:neonFlicker 4s linear infinite}
+@keyframes neonFlicker{
+  0%,3%,6%,100%{text-shadow:0 0 10px rgba(255,46,154,.75),0 0 22px rgba(255,46,154,.4);opacity:1}
+  4%{text-shadow:none;opacity:.75}
+  5%{text-shadow:0 0 10px rgba(255,46,154,.75),0 0 22px rgba(255,46,154,.4);opacity:1}
+  71%{opacity:1}
+  72%{opacity:.7;text-shadow:none}
+  73%{opacity:1;text-shadow:0 0 10px rgba(255,46,154,.75),0 0 22px rgba(255,46,154,.4)}
+}
+.sub{color:var(--ivory-dim);max-width:52ch;margin-bottom:24px}
+
+textarea{
+  width:100%;min-height:88px;resize:vertical;
+  background:var(--glass);border:1px solid var(--line);border-radius:16px;
+  color:var(--ivory);font-family:'Instrument Sans',sans-serif;font-size:16px;
+  padding:16px 18px;transition:border-color 200ms ease;
+}
+textarea:focus{border-color:var(--pink)}
+.actions{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap}
+.run{
+  position:relative;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.12em;
+  background:var(--ivory);color:var(--void);border:0;cursor:pointer;
+  padding:15px 26px;border-radius:999px;
+  box-shadow:0 0 0 0 rgba(255,46,154,.5);
+  animation:ctaPulse 2.6s ease-out infinite;
+  transition:transform 160ms var(--ease-out),background-color 200ms ease,box-shadow 160ms var(--ease-out);
+  will-change:transform;
+}
+@keyframes ctaPulse{0%{box-shadow:0 0 0 0 rgba(255,46,154,.45)}70%{box-shadow:0 0 0 14px rgba(255,46,154,0)}100%{box-shadow:0 0 0 0 rgba(255,46,154,0)}}
+.run:active{transform:scale(0.97)}
+.run:disabled{opacity:.5;cursor:wait;animation:none}
+@media (hover:hover) and (pointer:fine){.run:hover:not(:disabled){background:var(--pink);color:var(--ivory);animation:none}}
+.sample{
+  position:relative;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.08em;
+  background:transparent;color:var(--ivory-dim);border:1px solid var(--line);cursor:pointer;
+  padding:15px 20px;border-radius:999px;transition:transform 160ms var(--ease-out),border-color 200ms ease,color 200ms ease;
+  will-change:transform;
+}
+.sample:active{transform:scale(0.97)}
+.sample:disabled{opacity:.5;cursor:wait}
+@media (hover:hover) and (pointer:fine){.sample:hover:not(:disabled){border-color:var(--green);color:var(--ivory)}}
+
+.pipeline{margin-top:44px;display:grid;gap:16px}
+.head{
+  background:var(--glass);border:1px solid var(--line);border-radius:20px;padding:24px 22px;
+  opacity:.35;transition:opacity 400ms var(--ease-out),border-color 300ms ease;
+  position:relative;overflow:hidden;
+}
+.head.active,.head.done{opacity:1}
+.head.active{border-color:var(--c)}
+.head::before{content:"";position:absolute;width:140px;height:140px;border-radius:50%;
+  top:-70px;right:-50px;filter:blur(36px);opacity:0;background:var(--c);transition:opacity 400ms ease}
+.head.active::before,.head.done::before{opacity:.5}
+.head-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}
+.head h2{font-family:'Instrument Serif',serif;font-weight:400;font-size:24px}
+.head .tag{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--c)}
+.status{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--ivory-dim);text-align:right}
+.status.think::after{content:"";display:inline-block;width:10px;text-align:left;animation:dots 1s steps(4) infinite}
+@keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+.out{margin-top:14px;display:none}
+.head.done .out{display:block;animation:fadein 400ms var(--ease-out)}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.cands{display:grid;gap:8px;margin-bottom:16px}
+.cand{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:13.5px;color:var(--ivory-dim);
+  border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.cand.win{border-color:var(--gold);color:var(--ivory)}
+.cand b{font-variant-numeric:tabular-nums;color:var(--gold);white-space:nowrap}
+.scorebars{display:grid;gap:10px;margin:12px 0}
+.sb{display:grid;grid-template-columns:80px 1fr 30px;align-items:center;gap:12px;font-size:13px;color:var(--ivory-dim)}
+.sb .track{height:6px;border-radius:99px;background:rgba(244,239,230,.08);overflow:hidden}
+.sb .fill{height:100%;border-radius:99px;background:var(--c);width:0;transition:width 700ms var(--ease-out)}
+.sb b{font-variant-numeric:tabular-nums;font-weight:600;color:var(--ivory)}
+.angle{font-family:'Instrument Serif',serif;font-style:italic;font-size:19px;margin-top:8px}
+
+.panelbox{background:rgba(15,12,11,.5);border:1px solid var(--line);border-radius:14px;padding:18px;font-size:14.5px;white-space:pre-wrap;color:var(--ivory)}
+.lbl{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.18em;color:var(--ivory-dim);display:block;margin:12px 0 4px}
+.lbl:first-child{margin-top:0}
+
+.tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.tab{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.12em;cursor:pointer;
+  background:transparent;color:var(--ivory-dim);border:1px solid var(--line);border-radius:999px;padding:8px 14px;
+  transition:transform 160ms var(--ease-out),border-color 200ms ease,color 200ms ease}
+.tab:active{transform:scale(0.97)}
+.tab.on{border-color:var(--gold);color:var(--gold)}
+.panel{display:none}
+.panel.on{display:block}
+
+.verdict{display:inline-block;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.16em;
+  border-radius:999px;padding:8px 16px;margin-bottom:10px}
+.verdict.ok{background:rgba(57,255,136,.15);color:var(--green);border:1px solid rgba(57,255,136,.4)}
+.verdict.no{background:rgba(255,46,154,.12);color:var(--pink);border:1px solid rgba(255,46,154,.4)}
+.ruling{font-family:'Instrument Serif',serif;font-style:italic;font-size:18px}
+
+.err{margin-top:20px;border:1px solid rgba(255,46,154,.4);background:rgba(255,46,154,.08);
+  border-radius:14px;padding:16px;font-size:14px;display:none}
+
+/* ---- Live Docket (autonomous status feed) ---- */
+.docket{margin-top:76px}
+.docket-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.docket-kicker{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--ivory-dim)}
+.docket h2{font-family:'Instrument Serif',serif;font-weight:400;font-size:28px}
+.docket .sub{margin-bottom:22px;font-size:14px}
+.pulse-live{display:inline-flex;align-items:center;gap:7px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--green)}
+.pulse-live::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.2s ease infinite alternate}
+.docket-meta{font-family:'Space Mono',monospace;font-size:11px;color:var(--ivory-dim);letter-spacing:.04em;margin-bottom:18px;display:flex;gap:18px;flex-wrap:wrap}
+.docket-meta b{color:var(--gold);font-weight:600;font-variant-numeric:tabular-nums}
+
+.drow{display:grid;grid-template-columns:104px 1fr auto auto;gap:14px;align-items:center;
+  padding:16px 18px;border:1px solid var(--line);border-radius:14px;background:var(--glass);margin-bottom:10px;
+  opacity:0;transform:translateY(6px);filter:blur(3px);
+  animation:rowin 460ms var(--ease-out) forwards}
+@keyframes rowin{to{opacity:1;transform:none;filter:blur(0)}}
+.drow:nth-child(1){animation-delay:0ms}
+.drow:nth-child(2){animation-delay:60ms}
+.drow:nth-child(3){animation-delay:120ms}
+.drow:nth-child(4){animation-delay:180ms}
+.drow:nth-child(5){animation-delay:240ms}
+.drow-time{font-family:'Space Mono',monospace;font-size:10.5px;color:var(--ivory-dim);letter-spacing:.03em}
+.drow-story{font-size:14px;line-height:1.4}
+.drow-score{font-family:'Space Mono',monospace;font-size:11px;color:var(--gold);font-variant-numeric:tabular-nums;white-space:nowrap}
+.drow-verdict{font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:.12em;border-radius:999px;padding:5px 11px;white-space:nowrap}
+.drow-verdict.ok{background:rgba(57,255,136,.15);color:var(--green);border:1px solid rgba(57,255,136,.4)}
+.drow-verdict.no{background:rgba(255,46,154,.12);color:var(--pink);border:1px solid rgba(255,46,154,.4)}
+@media (max-width:620px){.drow{grid-template-columns:1fr;gap:6px}.drow-time{order:-1}}
+
+.dskel{height:64px;border-radius:14px;margin-bottom:10px;
+  background:linear-gradient(90deg,var(--glass) 25%,rgba(244,239,230,.09) 50%,var(--glass) 75%);
+  background-size:200% 100%;animation:shimmer 1.5s ease-in-out infinite}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+
+.dempty{border:1px dashed var(--line);border-radius:14px;padding:22px;text-align:center;color:var(--ivory-dim);font-size:13.5px}
+.dempty b{color:var(--ivory)}
+@media (prefers-reduced-motion:reduce){.drow{animation:none;opacity:1;transform:none;filter:none}.dskel{animation:none}}
+
+footer{margin-top:60px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--ivory-dim);
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<div class="glow-wrap" id="glowWrap" aria-hidden="true"><div class="glow"></div></div>
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track" id="tickerTrack">
+    <span>AUTOMATED <b>24/7</b></span><span>NO HUMANS <b>IN THE LOOP</b></span><span>ONE LAWYER <b>ZERO STAFF</b></span><span>HOURLY <b>SWEEP</b></span><span>SOVEREIGN <b>STACK</b></span><span>LIVE <b>DOCKET</b></span>
+    <span>AUTOMATED <b>24/7</b></span><span>NO HUMANS <b>IN THE LOOP</b></span><span>ONE LAWYER <b>ZERO STAFF</b></span><span>HOURLY <b>SWEEP</b></span><span>SOVEREIGN <b>STACK</b></span><span>LIVE <b>DOCKET</b></span>
+  </div>
+</div>
+<div class="wrap">
+  <header>
+    <div class="logo">ai.onthe<i>Prize</i></div>
+    <div class="badge">LIVE · CLAUDE API</div>
+  </header>
+
+  <h1>One button.<br><em>The whole courtroom runs.</em></h1>
+  <p class="sub">No input needed. The Bloodhound hunts this week's real AI law news, the team builds the case, and the Gavel approves or rejects. Live, end to end.</p>
+
+  <div class="actions" style="margin-top:0">
+    <button class="run" id="runBtn" onclick="runPipeline(true)">RUN THE CASE</button>
+  </div>
+  <p class="sub" style="margin:22px 0 8px;font-size:13px">Or override the Bloodhound with your own headline:</p>
+  <textarea id="headline" placeholder="Paste any AI law or AI news headline here..."></textarea>
+  <div class="actions">
+    <button class="sample" id="manBtn" onclick="runPipeline(false)">RUN ON THIS HEADLINE</button>
+  </div>
+  <div class="err" id="err"></div>
+
+  <div class="pipeline">
+    <div class="head" id="h-bloodhound" style="--c:var(--gold)">
+      <div class="head-top"><div><span class="tag">Research</span><h2>The Bloodhound</h2></div><span class="status" id="s-bloodhound">STANDBY</span></div>
+      <div class="out" id="o-bloodhound"></div>
+    </div>
+    <div class="head" id="h-ghostwriter" style="--c:var(--pink)">
+      <div class="head-top"><div><span class="tag">Argument</span><h2>The Ghostwriter</h2></div><span class="status" id="s-ghostwriter">STANDBY</span></div>
+      <div class="out" id="o-ghostwriter"></div>
+    </div>
+    <div class="head" id="h-remixer" style="--c:var(--green)">
+      <div class="head-top"><div><span class="tag">Briefs</span><h2>The Remixer</h2></div><span class="status" id="s-remixer">STANDBY</span></div>
+      <div class="out" id="o-remixer"></div>
+    </div>
+    <div class="head" id="h-gavel" style="--c:var(--gold)">
+      <div class="head-top"><div><span class="tag">Ruling</span><h2>The Gavel</h2></div><span class="status" id="s-gavel">STANDBY</span></div>
+      <div class="out" id="o-gavel"></div>
+    </div>
+  </div>
+
+  <section class="docket">
+    <div class="docket-top">
+      <div>
+        <div class="docket-kicker">SOVEREIGNTY LAYER · NO ONE IS WATCHING THIS</div>
+        <h2>The Live Docket</h2>
+      </div>
+      <span class="pulse-live" id="docketLive">SYNCING</span>
+    </div>
+    <p class="sub">Built by one lawyer, run by no one. An hourly sweep hunts AI-law headlines, scores them, and the Gavel rules — logged here whether or not anyone is looking. This is the proof: the firm operates while its founder sleeps.</p>
+    <div class="docket-meta">
+      <span>LAST SYNCED <b id="lastSync">—</b></span>
+      <span>NEXT SWEEP IN <b id="nextSweep">—</b></span>
+      <span>CASES LOGGED <b id="caseCount">—</b></span>
+    </div>
+    <div id="docketBody">
+      <div class="dskel"></div><div class="dskel"></div><div class="dskel"></div>
+    </div>
+  </section>
+
+  <footer><span>© 2026 ai.onthePrize</span><span>Educational content, not legal advice</span></footer>
+</div>
+
+<script>
+function esc(s){const d=document.createElement('div');d.textContent=s??'';return d.innerHTML}
+
+async function ask(prompt,useSearch){
+  const payload={model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:prompt}]};
+  if(useSearch)payload.tools=[{type:"web_search_20250305",name:"web_search"}];
+  let r;
+  try{
+    r=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(payload)
+    });
+  }catch(networkErr){
+    throw new Error("Network blocked. This demo only runs inside the Claude app preview, not in a normal browser or on a hosted URL.");
+  }
+  if(!r.ok){
+    const body=await r.text();
+    throw new Error("API error "+r.status+": "+body.slice(0,200));
+  }
+  const data=await r.json();
+  const text=(data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n");
+  const clean=text.replace(/```json|```/g,"").trim();
+  const start=clean.indexOf("{");const end=clean.lastIndexOf("}");
+  return JSON.parse(clean.slice(start,end+1));
+}
+
+function setState(id,state,label){
+  const h=document.getElementById('h-'+id),s=document.getElementById('s-'+id);
+  h.classList.remove('active','done');
+  if(state)h.classList.add(state);
+  s.textContent=label;
+  s.classList.toggle('think',['THINKING','HUNTING','DRAFTING','REWRITING','VERIFYING'].includes(label));
+}
+
+async function runPipeline(auto){
+  const err=document.getElementById('err');
+  err.style.display='none';
+  let headline=document.getElementById('headline').value.trim();
+  if(!auto&&!headline){err.textContent='Paste a headline first, or press RUN THE CASE.';err.style.display='block';return}
+  const btn=document.getElementById('runBtn'),man=document.getElementById('manBtn');
+  btn.disabled=true;man.disabled=true;
+  ['bloodhound','ghostwriter','remixer','gavel'].forEach(id=>{setState(id,null,'QUEUED');document.getElementById('o-'+id).innerHTML=''});
+
+  try{
+    // 1. THE BLOODHOUND — hunt and select
+    setState('bloodhound','active',auto?'HUNTING':'THINKING');
+    let bloodhound,candHtml='';
+    if(auto){
+      bloodhound=await ask(`You are the Bloodhound at ai.onthePrize, a claymation AI-law content studio. Use web search to find REAL AI law, AI regulation, or AI lawsuit news from the past 7 days. Find the 3 strongest candidate stories for short-form video. After searching, respond with ONLY a JSON object, no other text, no markdown: {"candidates":[{"story":"real headline, under 15 words","score":1-40},{"story":"...","score":1-40},{"story":"...","score":1-40}],"winner":"the chosen story verbatim from candidates","novelty":1-10,"stakes":1-10,"visual":1-10,"hook":1-10,"total":sum,"angle":"one sentence a 15-year-old understands, stakes first"}`,true);
+      headline=bloodhound.winner;
+      candHtml=`<div class="cands">${(bloodhound.candidates||[]).map(c=>
+        `<div class="cand ${c.story===bloodhound.winner?'win':''}"><span>${esc(c.story)}</span><b>${c.score??''}/40</b></div>`).join('')}</div>`;
+    }else{
+      bloodhound=await ask(`You are the Bloodhound at ai.onthePrize, a claymation AI-law content studio. Score this headline for short-form video potential: "${headline}". Respond with ONLY a JSON object, no other text, no markdown: {"novelty":1-10,"stakes":1-10,"visual":1-10,"hook":1-10,"total":sum,"angle":"one sentence a 15-year-old understands, stakes first"}`);
+    }
+    document.getElementById('o-bloodhound').innerHTML=candHtml+
+      `<div class="scorebars">${['novelty','stakes','visual','hook'].map(k=>
+        `<div class="sb"><span>${k}</span><div class="track"><div class="fill" data-w="${(bloodhound[k]||0)*10}"></div></div><b>${bloodhound[k]||0}</b></div>`).join('')}</div>
+      <div class="angle">"${esc(bloodhound.angle)}"</div>`;
+    setState('bloodhound','done',auto?'CASE FOUND':'SCORED '+(bloodhound.total||'')+'/40');
+    requestAnimationFrame(()=>document.querySelectorAll('#o-bloodhound .fill').forEach(f=>f.style.width=f.dataset.w+'%'));
+
+    // 2. THE GHOSTWRITER — master argument
+    setState('ghostwriter','active','DRAFTING');
+    const ghostwriter=await ask(`You are the Ghostwriter at ai.onthePrize, a claymation AI-law studio. Story: "${headline}". Angle: "${bloodhound.angle}". Draft the master 35-second TikTok argument. Respond with ONLY a JSON object, no other text, no markdown: {"hook":"first line spoken to camera, 10 words max","argument":"4 short spoken lines, plain words, stakes first, ends with a question or hard opinion","shot":"one claymation shot description: character pose, camera angle, lighting, clay colors"}`);
+    document.getElementById('o-ghostwriter').innerHTML=
+      `<div class="panelbox"><span class="lbl">HOOK</span>${esc(ghostwriter.hook)}<span class="lbl">ARGUMENT</span>${esc(ghostwriter.argument)}<span class="lbl">CLAY SHOT</span>${esc(ghostwriter.shot)}</div>`;
+    setState('ghostwriter','done','BRIEF READY');
+
+    // 3. THE REMIXER — rewrite across platforms
+    setState('remixer','active','REWRITING');
+    const remixer=await ask(`You are the Remixer at ai.onthePrize. Take this one master argument and recut it into three separate briefs for different courtrooms. Story: "${headline}". Argument: "${ghostwriter.argument}". Respond with ONLY a JSON object, no other text, no markdown: {"linkedin":"a 4-line LinkedIn brief from the same story, professional angle, hook first, ends with a debate question, no hashtags","carousel":["5 Instagram slide headlines, each under 8 words, slide 1 screenshot-worthy"],"reel":"one line on how the TikTok gets tightened to a 25-second Instagram Reel"}`);
+    document.getElementById('o-remixer').innerHTML=
+      `<div class="tabs">
+        <button class="tab on" onclick="showTab(this,'p-li')">LINKEDIN</button>
+        <button class="tab" onclick="showTab(this,'p-ca')">CAROUSEL</button>
+        <button class="tab" onclick="showTab(this,'p-re')">REEL CUT</button>
+      </div>
+      <div class="panel panelbox on" id="p-li">${esc(remixer.linkedin)}</div>
+      <div class="panel panelbox" id="p-ca">${(remixer.carousel||[]).map((s,i)=>`<span class="lbl">SLIDE ${i+1}</span>${esc(s)}`).join('')}</div>
+      <div class="panel panelbox" id="p-re">${esc(remixer.reel)}</div>`;
+    setState('remixer','done','BRIEFS READY');
+
+    // 4. THE GAVEL — fact-check against the live web, then rule
+    setState('gavel','active','VERIFYING');
+    const gavel=await ask(`You are the Gavel at ai.onthePrize, the final ruling from a senior lawyer. Brand rule: accuracy beats speed; never publish fabricated or unverifiable legal claims. Use web search to verify this story is real and current: "${headline}". Then judge whether this hook overpromises: "${ghostwriter.hook}". Respond with ONLY a JSON object, no other text, no markdown: {"verdict":"APPROVED" or "DENIED","ruling":"one decisive sentence: is the story verified and the hook honest?"}`,true);
+    const ok=gavel.verdict==='APPROVED';
+    document.getElementById('o-gavel').innerHTML=
+      `<span class="verdict ${ok?'ok':'no'}">${esc(gavel.verdict)}</span><div class="ruling">"${esc(gavel.ruling)}"</div>`;
+    setState('gavel','done',ok?'CASE CLOSED':'OVERRULED');
+  }catch(e){
+    console.error(e);
+    err.textContent=e.message||'A counsel stumbled mid-case. Run it again.';
+    err.style.display='block';
+  }
+  btn.disabled=false;man.disabled=false;
+}
+
+function showTab(btn,id){
+  btn.parentElement.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  const panels=btn.parentElement.parentElement.querySelectorAll('.panel');
+  panels.forEach(p=>p.classList.toggle('on',p.id===id));
+}
+
+/* ---- Live Docket: reads the public Google Sheet the hourly no-code automation writes to.
+   Uses the classic gviz JSONP callback (script tag, not fetch) so it works cross-origin
+   with zero backend and zero API keys. Swap SHEET_ID for your own docket sheet. ---- */
+const DOCKET_SHEET_ID='1NZoVhLLWzGH1Hu62VJmE9k1PpYIbQushs1oVoYoukuc';
+const DOCKET_TAB='Docket';
+
+function fmtRelative(mins){
+  if(mins<1)return 'moments ago';
+  if(mins<60)return mins+'m ago';
+  const h=Math.floor(mins/60);
+  return h+'h '+Math.round(mins%60)+'m ago';
+}
+
+function renderDocket(table){
+  const live=document.getElementById('docketLive');
+  const body=document.getElementById('docketBody');
+  const rows=(table.rows||[]).map(r=>({
+    time:r.c[0]&&r.c[0].f||'',
+    story:r.c[1]&&r.c[1].v||'',
+    score:r.c[2]&&r.c[2].v,
+    verdict:r.c[3]&&r.c[3].v||'',
+    status:r.c[5]&&r.c[5].v||''
+  })).filter(r=>r.story);
+
+  if(!rows.length){
+    body.innerHTML='<div class="dempty">No sweeps logged yet. Connect the hourly automation and the first ruling lands here within the hour — see <b>the no-code checklist</b>.</div>';
+    live.textContent='IDLE'; live.style.color='var(--ivory-dim)';
+    document.getElementById('caseCount').textContent='0';
+    return;
+  }
+
+  document.getElementById('caseCount').textContent=rows.length;
+  live.textContent='LIVE'; live.style.color='var(--green)';
+  body.innerHTML=rows.slice(0,6).map(r=>{
+    const ok=(r.verdict||'').toUpperCase()==='APPROVED';
+    return `<div class="drow">
+      <span class="drow-time">${esc(r.time)}</span>
+      <span class="drow-story">${esc(r.story)}</span>
+      <span class="drow-score">${r.score!=null?r.score+'/40':''}</span>
+      <span class="drow-verdict ${ok?'ok':'no'}">${esc(r.verdict)}</span>
+    </div>`;
+  }).join('');
+}
+
+function loadDocket(){
+  window.google=window.google||{};
+  window.google.visualization=window.google.visualization||{};
+  window.google.visualization.Query=window.google.visualization.Query||{};
+  window.google.visualization.Query.setResponse=function(resp){
+    document.getElementById('lastSync').textContent='just now';
+    try{renderDocket(resp.table);}catch(e){
+      document.getElementById('docketBody').innerHTML='<div class="dempty">The Docket is between sweeps. Check back shortly.</div>';
+    }
+  };
+  const s=document.createElement('script');
+  s.src='https://docs.google.com/spreadsheets/d/'+DOCKET_SHEET_ID+'/gviz/tq?tqx=out:json&sheet='+encodeURIComponent(DOCKET_TAB)+'&_='+Date.now();
+  s.onerror=function(){
+    document.getElementById('docketBody').innerHTML='<div class="dempty">Docket feed unreachable right now — the hourly automation keeps logging regardless.</div>';
+    document.getElementById('docketLive').textContent='OFFLINE';
+  };
+  document.body.appendChild(s);
+}
+
+function tickNextSweep(){
+  const now=new Date();
+  const next=new Date(now);
+  next.setMinutes(0,0,0);
+  next.setHours(next.getHours()+1);
+  const diff=Math.max(0,next-now);
+  const m=Math.floor(diff/60000),s=Math.floor((diff%60000)/1000);
+  document.getElementById('nextSweep').textContent=m+'m '+String(s).padStart(2,'0')+'s';
+}
+
+loadDocket();
+setInterval(loadDocket,300000); // refresh feed every 5 min
+tickNextSweep();
+setInterval(tickNextSweep,1000);
+
+/* ---- Kinetic layer: magnetic buttons + scroll parallax on the glow blob.
+   Skipped entirely when the user prefers reduced motion. ---- */
+const prefersReduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(!prefersReduced){
+  document.querySelectorAll('.run,.sample').forEach(btn=>{
+    btn.addEventListener('mousemove',e=>{
+      const r=btn.getBoundingClientRect();
+      const mx=e.clientX-r.left-r.width/2, my=e.clientY-r.top-r.height/2;
+      btn.style.transform=`translate(${mx*0.18}px,${my*0.35}px)`;
+    });
+    btn.addEventListener('mouseleave',()=>{btn.style.transform='';});
+  });
+
+  const glowWrap=document.getElementById('glowWrap');
+  let ticking=false;
+  window.addEventListener('scroll',()=>{
+    if(ticking)return; ticking=true;
+    requestAnimationFrame(()=>{
+      const y=Math.min(window.scrollY*0.12,140);
+      if(glowWrap)glowWrap.style.setProperty('--parallax',y+'px');
+      ticking=false;
+    });
+  },{passive:true});
+}
+</script>
+</body>
+</html>
